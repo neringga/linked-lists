@@ -1,12 +1,6 @@
-//Neringa Geigalaite
+﻿//Neringa Geigalaite
 //n6. Sudaryti vienpusį sąrašą. Parašyti procedūrą, kuri išmeta iš sąrašo didžiausią
 //elementą.
-//sukurti sarasa, ideti elementa, isimti elementa, spausdinti
-//su switch
-//visos funkcijos turi grazinti klaidos koda
-//sukurk = tik ten gali null
-//gali turi buti vienas kad pakaortutu meniu
-//KLAIDOS, HEAD KAI KUR BE 2 ZV, SPAUSDINTI GALIMA IR NEPKAKEITUS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,9 +14,9 @@ typedef struct el LIST;
 
 void create_the_list(LIST **);
 void insert_element(LIST **,int );
-void delete_max(LIST **);
+void delete_max(LIST **, int *);
 void display_list(LIST *);
-void delete_element(LIST **, int);
+void delete_element(LIST **, int , int *);
 void delete_list(LIST **);
 
 int main () {
@@ -31,8 +25,10 @@ int main () {
 	int nr;
 	int m;
 	int created = 0;
+	int mistake = 0;
+	int mistake1 = 0;
 	
-	printf("Galimybes:\n1 Sukurti sarasa\n2 Iterpti elementa\n3 Isimti elementa\n4 Isimti max elementa\n5 Spausdinti sarasa\n6 Istrinti sarasa\n7 Pakartoti meniu\nNorint uzbaigti ivesti 0\n");
+	printf("1 Create list\n2 Insert element\n3 Delete element\n4 Delete max element\n5 Print list\n6 Delete list\n7 Repeat meniu\n0 for escape\n");
 	
 	while (n != 0) {
 		scanf ("%d", &n);
@@ -43,23 +39,34 @@ int main () {
 			break;
 		
 			case 2:
-			printf ("Iveskite elementa: ");
+			printf ("Insert element: ");
 			scanf ("%d", &m);
 			insert_element (&head, m);
 			break;
 		
 			case 3:
-			printf ("Iveskite elemento, kuri norite istrinti, eiles nr.: ");
+			printf ("Insert number of the element that you want to delete: ");
 			scanf ("%d", &nr);
-			delete_element (&head, nr);
+			delete_element (&head, nr, &mistake);
+			
+			if (mistake == 1) {
+				printf("No element to delete\n");
+			}
+			
 			break;
 		
 			case 4:
-			delete_max (&head);
+			delete_max (&head, &mistake1);
+			
+			if (mistake1 == 1) {
+				printf("Max element can't be deleted\n");
+			}
+			
 			break;
 			
 			case 5:
 			display_list (head);
+			printf("\n");
 			break;
 			
 			case 6:
@@ -67,7 +74,7 @@ int main () {
 			break;
 			
 			case 7:
-			printf ("Galimybes:\n1 Sukurti sarasa\n2 Iterpti elementa\n3 Isimti elementa\n4 Isimti max elementa\n5 Spausdinti sarasa\n6 Istrinti sarasa\n7 Pakartoti meniu\nNorint uzbaigti ivesti 0\n");
+			printf("1 Create list\n2 Insert element\n3 Delete element\n4 Delete max element\n5 Print list\n6 Delete list\n7 Repeat meniu\n0 for escape\n");
 			break;
 		}
 		
@@ -76,11 +83,11 @@ int main () {
 	return 0;
 }
 
-void create_the_list(LIST **head) {   								 //funkcija, kuri sukuria sarasa
+void create_the_list(LIST **head) {   								 //function to create the list
 	*head = NULL;	
 }
 
-void insert_element(LIST **head, int n) {
+void insert_element(LIST **head, int n) {							//function to insert element to the end of the list
 	LIST *temp;
 	LIST *p;
 	
@@ -103,28 +110,30 @@ void insert_element(LIST **head, int n) {
 		
 }
 
-void delete_element(LIST **head, int n) {     							//funkcija, kuri panaikina didziausia elementa is saraso
+void delete_element(LIST **head, int n, int *mistake) {     			//function that deletes max element
 	LIST *temp;
 	LIST *p = *head;
 	int i;
 	int elements = 0;
 	
-	printf ("dar ok1");
-	while ( (p->next != NULL) && (p != NULL)) {							//skaiciuoju, kiek elementu yra ivesta sarase
-		printf ("dar ok2");
+	if (p == NULL) {
+		*mistake = 1;
+		return;
+	}
+	
+	while ( (p->next != NULL) ) {
 		p = p->next;
 		elements++;
 	}
-	printf ("dar ok3");
-	printf("\n%d", elements);
 	
-	if (n > (elements+1)) {									//tikrinu ar vartotojo norimas istrinti elemento nr nera didesnis nei is viso yra elementu
-		return ;
+	if (n > (elements+1)) {									//checking if the element is in the list
+		*mistake = 1;
+		return;
 	}
 	
 	p = *head;
 	
-	if (n == 0) {													//jeigu elementas yra pirmas sarase - isskirtinis atvejis
+	if (n == 0) {													//if the element is first in the row
 		*head = p->next;
 		free(p);
 	}
@@ -141,11 +150,18 @@ void delete_element(LIST **head, int n) {     							//funkcija, kuri panaikina 
 	
 }
 
-void delete_max (LIST **head) {  										//funkcija, kuri randa didziausio elemento sarase eiles nr
+void delete_max (LIST **head, int *mistake1) {  							//function that deletes max element
 	LIST *p = *head;
-	int max = p->data;
+	int max;
 	int i;
 	int max_position = 0;
+	
+	if (p == NULL) {
+		*mistake1 = 1;
+		return;
+	}
+	
+	max = p->data;
 
 	while (p != NULL) {	
 	
@@ -156,35 +172,26 @@ void delete_max (LIST **head) {  										//funkcija, kuri randa didziausio ele
 		p = p->next;
 	}
 	
-	p = *head;                      								//pagal rasta max randamas jo eiles nr sarase
+	p = *head;                      								
 	
 	while ((p->data) != max) {
 		max_position++;
 		p = p->next;
 	}
 	
-	delete_element(head, max_position);
-	
+	delete_element(head, max_position, &mistake1);
 }
 
-void display_list(LIST *head) {            	 						//funkcija, kuri spausdina pertvarkyta sarasa
-
-	if (head == NULL) {
-		printf("Sarasas nesukurtas");
-	}
-	else {
+void display_list(LIST *head) {            	 						//function to display list
 		
 		while (head != NULL) {
 			printf ("\n%d", head->data);
 			head = head->next;
 		}
-			
-	}
 	
-	printf("\n");	
 }
 
-void delete_list(LIST **head) {
+void delete_list(LIST **head) {										//function to delete list
 	
 	while (*head != NULL) {
 		*head = (*head)->next;
